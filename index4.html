@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لعبة الصور المتشابهة للأطفال</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial Rounded MT Bold', 'Segoe UI', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #6ecbf5 0%, #059ee3 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            border-radius: 25px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            padding: 25px;
+            text-align: center;
+            border: 8px solid #ffcc00;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .container::before {
+            content: "";
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, #ff3366, #ffcc00, #33ccff, #33cc33);
+            z-index: -1;
+            border-radius: 35px;
+            animation: rainbow-border 8s linear infinite;
+        }
+        
+        @keyframes rainbow-border {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+        
+        h1 {
+            color: #ff3366;
+            font-size: 3rem;
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 0 #ffcc00;
+            letter-spacing: 1px;
+            animation: bounce 2s infinite alternate;
+        }
+        
+        @keyframes bounce {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(-10px); }
+        }
+        
+        .subtitle {
+            color: #3366cc;
+            font-size: 1.5rem;
+            margin-bottom: 25px;
+        }
+        
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            background-color: #e6f7ff;
+            padding: 15px;
+            border-radius: 20px;
+            margin-bottom: 25px;
+            border: 4px dashed #33ccff;
+        }
+        
+        .info-box {
+            text-align: center;
+        }
+        
+        .info-label {
+            color: #3366cc;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            color: #ff3366;
+            font-size: 2rem;
+            font-weight: bold;
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin-bottom: 25px;
+            justify-content: center;
+        }
+        
+        .card {
+            aspect-ratio: 1;
+            border-radius: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            transform-style: preserve-3d;
+            transform: perspective(600px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+            background-color: #f0f9ff;
+            border: 4px solid transparent;
+            font-size: 3rem;
+            user-select: none;
+        }
+        
+        .card:hover {
+            transform: perspective(600px) translateY(-10px) rotateX(5deg);
+            box-shadow: 0 15px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card.selected {
+            border-color: #ffcc00;
+            transform: perspective(600px) translateY(-5px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(255, 204, 0, 0.5);
+            animation: pulse 0.5s;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1.05); }
+        }
+        
+        .card.matched {
+            border-color: #33cc33;
+            background-color: #e6ffe6;
+            transform: perspective(600px) rotateY(360deg);
+            animation: celebrate 1s;
+        }
+        
+        @keyframes celebrate {
+            0% { transform: rotate(0) scale(1); }
+            25% { transform: rotate(10deg) scale(1.2); }
+            50% { transform: rotate(-10deg) scale(1.2); }
+            75% { transform: rotate(10deg) scale(1.1); }
+            100% { transform: rotate(0) scale(1); }
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        button {
+            background: linear-gradient(to bottom, #ff3366, #cc0044);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 0 #990033;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            min-width: 200px;
+        }
+        
+        button:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 13px 0 #990033;
+        }
+        
+        button:active {
+            transform: translateY(3px);
+            box-shadow: 0 5px 0 #990033;
+        }
+        
+        button.secondary {
+            background: linear-gradient(to bottom, #33ccff, #0099cc);
+            box-shadow: 0 8px 0 #006699;
+        }
+        
+        button.secondary:hover {
+            box-shadow: 0 13px 0 #006699;
+        }
+        
+        button.secondary:active {
+            box-shadow: 0 5px 0 #006699;
+        }
+        
+        .level-complete {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            flex-direction: column;
+            animation: fadeIn 0.5s;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .celebration {
+            font-size: 8rem;
+            margin-bottom: 30px;
+            animation: bounce 1s infinite alternate;
+        }
+        
+        .level-complete h2 {
+            color: #ff3366;
+            font-size: 4rem;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 0 #ffcc00;
+        }
+        
+        .level-complete p {
+            color: #3366cc;
+            font-size: 2rem;
+            margin-bottom: 30px;
+        }
+        
+        .level-complete button {
+            font-size: 2rem;
+            padding: 20px 40px;
+        }
+        
+        .instructions {
+            background-color: #fff9e6;
+            padding: 15px;
+            border-radius: 15px;
+            margin-top: 20px;
+            border: 3px dashed #ffcc00;
+            font-size: 1.3rem;
+            color: #663300;
+        }
+        
+        @media (max-width: 768px) {
+            .game-board {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 10px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.2rem;
+            }
+            
+            .card {
+                font-size: 2.5rem;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .game-board {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .card {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>لعبة الصور المتشابهة</h1>
+        <p class="subtitle">اختر الصور المتشابهة!</p>
+        
+        <div class="game-info">
+            <div class="info-box">
+                <div class="info-label">المستوى</div>
+                <div class="info-value" id="level">1</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">النتيجة</div>
+                <div class="info-value" id="score">0</div>
+            </div>
+            <div class="info-box">
+                <div class="info-label">المتبقي</div>
+                <div class="info-value" id="remaining">0</div>
+            </div>
+        </div>
+        
+        <div class="game-board" id="gameBoard">
+            <!-- سيتم إنشاء المربعات هنا بواسطة JavaScript -->
+        </div>
+        
+        <div class="controls">
+            <button id="resetBtn">
+                <i class="fas fa-redo"></i> إعادة اللعب
+            </button>
+            <button class="secondary" id="hintBtn">
+                <i class="fas fa-lightbulb"></i> مساعدة
+            </button>
+        </div>
+        
+        <div class="instructions">
+            <i class="fas fa-info-circle"></i> 
+            التعليمات: انقر على صورتين متشابهتين لتطابقهما! .
+        </div>
+    </div>
+    
+    <div class="level-complete" id="levelComplete" style="display: none;">
+        <div class="celebration">🎉</div>
+        <h2>مستوى مكتمل!</h2>
+        <p>أحسنت! هيا ننتقل للمستوى التالي</p>
+        <button id="nextLevelBtn">
+            <i class="fas fa-arrow-right"></i> المستوى التالي
+        </button>
+    </div>
+
+    <script>
+        // بيانات اللعبة
+        const gameData = {
+            currentLevel: 1,
+            score: 0,
+            maxLevel: 7, // من 4 إلى 10 مربعات = 7 مستويات
+            levelConfigs: [
+                { pairs: 2, gridSize: 4 },   // مستوى 1: 4 مربعات (2 أزواج)
+                { pairs: 3, gridSize: 6 },   // مستوى 2: 6 مربعات (3 أزواج)
+                { pairs: 4, gridSize: 8 },   // مستوى 3: 8 مربعات (4 أزواج)
+                { pairs: 4, gridSize: 8 },   // مستوى 4: 8 مربعات (4 أزواج)
+                { pairs: 5, gridSize: 10 },  // مستوى 5: 10 مربعات (5 أزواج)
+                { pairs: 5, gridSize: 10 },  // مستوى 6: 10 مربعات (5 أزواج)
+                { pairs: 5, gridSize: 10 }   // مستوى 7: 10 مربعات (5 أزواج)
+            ],
+            emojis: ['🐶', '🐱', '🐭', '🐹', '🐰', '🦊', '🐻', '🐼', '🐨', '🐯', 
+                    '🦁', '🐮', '🐷', '🐸', '🐵', '🐔', '🐧', '🐦', '🐤', '🦄',
+                    '🐙', '🦑', '🐠', '🐟', '🐬', '🐳', '🦈', '🐊', '🐢', '🦖',
+                    '🍎', '🍌', '🍒', '🍇', '🍉', '🍓', '🍕', '🍦', '🍩', '🍭',
+                    '🚗', '✈️', '🚀', '🛸', '🚂', '🚲', '🛶', '🚁', '🏎️', '🚜',
+                    '⭐', '🌈', '☀️', '🌙', '☁️', '❄️', '🔥', '💧', '🌊', '🎈']
+        };
+
+        // حالة اللعبة الحالية
+        let gameState = {
+            cards: [],
+            selectedCards: [],
+            matchedPairs: 0,
+            totalPairs: 0,
+            canSelect: true,
+            usedEmojis: []
+        };
+
+        // عناصر DOM
+        const gameBoard = document.getElementById('gameBoard');
+        const levelElement = document.getElementById('level');
+        const scoreElement = document.getElementById('score');
+        const remainingElement = document.getElementById('remaining');
+        const resetBtn = document.getElementById('resetBtn');
+        const hintBtn = document.getElementById('hintBtn');
+        const levelComplete = document.getElementById('levelComplete');
+        const nextLevelBtn = document.getElementById('nextLevelBtn');
+
+        // تهيئة اللعبة
+        function initGame() {
+            const config = gameData.levelConfigs[gameData.currentLevel - 1];
+            gameState.totalPairs = config.pairs;
+            gameState.matchedPairs = 0;
+            gameState.selectedCards = [];
+            gameState.canSelect = true;
+            
+            // تحديث واجهة المستخدم
+            levelElement.textContent = gameData.currentLevel;
+            scoreElement.textContent = gameData.score;
+            remainingElement.textContent = gameState.totalPairs;
+            
+            // إنشاء مجموعة الإيموجيات لهذا المستوى
+            createEmojiSet(config.pairs);
+            
+            // إنشاء لوحة اللعب
+            createGameBoard(config.gridSize);
+        }
+
+        // إنشاء مجموعة من الإيموجيات الفريدة
+        function createEmojiSet(pairsCount) {
+            // اختيار إيموجيات عشوائية
+            gameState.usedEmojis = [];
+            const shuffledEmojis = [...gameData.emojis].sort(() => Math.random() - 0.5);
+            
+            for (let i = 0; i < pairsCount; i++) {
+                gameState.usedEmojis.push(shuffledEmojis[i]);
+            }
+            
+            // مضاعفة الإيموجيات لإنشاء أزواج
+            gameState.cards = [...gameState.usedEmojis, ...gameState.usedEmojis];
+            
+            // خلط الأوراق
+            gameState.cards = gameState.cards.sort(() => Math.random() - 0.5);
+        }
+
+        // إنشاء لوحة اللعب
+        function createGameBoard(gridSize) {
+            gameBoard.innerHTML = '';
+            
+            // تحديد عدد الأعمدة بناءً على حجم الشبكة
+            let columns = 5;
+            if (gridSize <= 4) columns = 2;
+            else if (gridSize <= 6) columns = 3;
+            else if (gridSize <= 8) columns = 4;
+            
+            gameBoard.style.gridTemplateColumns = `repeat(${columns}, 1fr)`;
+            
+            // إنشاء البطاقات
+            for (let i = 0; i < gridSize; i++) {
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.dataset.index = i;
+                card.dataset.emoji = gameState.cards[i] || '❓';
+                card.textContent = gameState.cards[i] || '❓';
+                
+                card.addEventListener('click', () => selectCard(card));
+                gameBoard.appendChild(card);
+            }
+        }
+
+        // اختيار بطاقة
+        function selectCard(card) {
+            if (!gameState.canSelect || 
+                gameState.selectedCards.includes(card) || 
+                card.classList.contains('matched')) {
+                return;
+            }
+            
+            // إضافة البطاقة المحددة
+            card.classList.add('selected');
+            gameState.selectedCards.push(card);
+            
+            // تشغيل صوت النقر
+            playSound('click');
+            
+            // التحقق من تطابق بطاقتين
+            if (gameState.selectedCards.length === 2) {
+                gameState.canSelect = false;
+                const [card1, card2] = gameState.selectedCards;
+                
+                if (card1.dataset.emoji === card2.dataset.emoji) {
+                    // تطابق ناجح
+                    setTimeout(() => {
+                        card1.classList.remove('selected');
+                        card2.classList.remove('selected');
+                        card1.classList.add('matched');
+                        card2.classList.add('matched');
+                        
+                        gameState.matchedPairs++;
+                        gameData.score += 10 * gameData.currentLevel;
+                        
+                        // تحديث الواجهة
+                        scoreElement.textContent = gameData.score;
+                        remainingElement.textContent = gameState.totalPairs - gameState.matchedPairs;
+                        
+                        // تشغيل صوت النجاح
+                        playSound('match');
+                        
+                        // التحقق من اكتمال المستوى
+                        if (gameState.matchedPairs === gameState.totalPairs) {
+                            setTimeout(() => completeLevel(), 800);
+                        }
+                        
+                        gameState.selectedCards = [];
+                        gameState.canSelect = true;
+                    }, 500);
+                } else {
+                    // تطابق فاشل
+                    setTimeout(() => {
+                        card1.classList.remove('selected');
+                        card2.classList.remove('selected');
+                        
+                        gameState.selectedCards = [];
+                        gameState.canSelect = true;
+                    }, 1000);
+                }
+            }
+        }
+
+        // إكمال المستوى
+        function completeLevel() {
+            // تشغيل صوت النجاح
+            playSound('levelComplete');
+            
+            // عرض شاشة إكمال المستوى
+            levelComplete.style.display = 'flex';
+            
+            // إذا كان هذا آخر مستوى، عرض رسالة مختلفة
+            if (gameData.currentLevel === gameData.maxLevel) {
+                document.querySelector('.level-complete h2').textContent = 'تهانينا! لقد أكملت جميع المستويات!';
+                document.querySelector('.level-complete p').textContent = 'لقد حصلت على ' + gameData.score + ' نقطة!';
+                nextLevelBtn.innerHTML = '<i class="fas fa-redo"></i> إعادة اللعبة من البداية';
+            }
+        }
+
+        // الانتقال للمستوى التالي
+        function goToNextLevel() {
+            if (gameData.currentLevel < gameData.maxLevel) {
+                gameData.currentLevel++;
+                initGame();
+            } else {
+                // إعادة اللعبة من البداية
+                gameData.currentLevel = 1;
+                gameData.score = 0;
+                initGame();
+            }
+            
+            levelComplete.style.display = 'none';
+        }
+
+        // إعادة تعيين اللعبة
+        function resetGame() {
+            gameData.currentLevel = 1;
+            gameData.score = 0;
+            initGame();
+            
+            // إخفاء شاشة إكمال المستوى إذا كانت ظاهرة
+            levelComplete.style.display = 'none';
+        }
+
+        // عرض تلميح
+        function showHint() {
+            if (!gameState.canSelect) return;
+            
+            // البحث عن أزواج غير متطابقة
+            const unmatchedCards = Array.from(document.querySelectorAll('.card:not(.matched)'));
+            const emojiCount = {};
+            
+            // حساب عدد كل إيموجي
+            unmatchedCards.forEach(card => {
+                const emoji = card.dataset.emoji;
+                emojiCount[emoji] = (emojiCount[emoji] || 0) + 1;
+            });
+            
+            // العثور على إيموجي له زوج غير مطابق
+            for (const emoji in emojiCount) {
+                if (emojiCount[emoji] >= 2) {
+                    const cardsWithEmoji = unmatchedCards.filter(card => card.dataset.emoji === emoji);
+                    
+                    // إبراز أول بطاقتين لهذا الإيموجي
+                    cardsWithEmoji[0].style.boxShadow = '0 0 0 5px #ffcc00, 0 8px 15px rgba(0, 0, 0, 0.1)';
+                    cardsWithEmoji[1].style.boxShadow = '0 0 0 5px #ffcc00, 0 8px 15px rgba(0, 0, 0, 0.1)';
+                    
+                    // إزالة الإبراز بعد 2 ثانية
+                    setTimeout(() => {
+                        cardsWithEmoji[0].style.boxShadow = '';
+                        cardsWithEmoji[1].style.boxShadow = '';
+                    }, 2000);
+                    
+                    // تقليل النقاط للتلميح
+                    gameData.score = Math.max(0, gameData.score - 5);
+                    scoreElement.textContent = gameData.score;
+                    
+                    playSound('hint');
+                    return;
+                }
+            }
+        }
+
+        // تشغيل الأصوات
+        function playSound(type) {
+            // في تطبيق حقيقي، يمكن إضافة أصوات هنا
+            // لأغراض العرض، سنستخدم نغمة بسيطة
+            try {
+                if (type === 'click') {
+                    // نغمة نقر
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+                    oscillator.connect(audioContext.destination);
+                    oscillator.start();
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                } else if (type === 'match') {
+                    // نغمة تطابق
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(523.25, audioContext.currentTime); // C5
+                    oscillator.connect(audioContext.destination);
+                    oscillator.start();
+                    
+                    const oscillator2 = audioContext.createOscillator();
+                    oscillator2.type = 'sine';
+                    oscillator2.frequency.setValueAtTime(659.25, audioContext.currentTime + 0.1); // E5
+                    oscillator2.connect(audioContext.destination);
+                    oscillator2.start();
+                    
+                    oscillator.stop(audioContext.currentTime + 0.2);
+                    oscillator2.stop(audioContext.currentTime + 0.3);
+                }
+            } catch (e) {
+                // تجاهل أخطاء الصوت
+                console.log("لا يمكن تشغيل الصوت في هذا المتصفح");
+            }
+        }
+
+        // إضافة مستمعي الأحداث
+        resetBtn.addEventListener('click', resetGame);
+        hintBtn.addEventListener('click', showHint);
+        nextLevelBtn.addEventListener('click', goToNextLevel);
+
+        // بدء اللعبة
+        window.addEventListener('DOMContentLoaded', initGame);
+    </script>
+</body>
+</html>
